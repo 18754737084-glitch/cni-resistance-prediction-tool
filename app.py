@@ -1,3 +1,53 @@
+# -*- coding: utf-8 -*-
+import math
+
+import streamlit as st
+
+
+APP_TITLE = "儿童SRNS患儿CNI耐药风险预测工具"
+APP_SUBTITLE = "基于Logistic回归模型的CNI耐药早期预测"
+APP_TITLE_HTML = "儿童SRNS患儿CNI耐药风险预测工具"
+CUTOFF = 0.18
+
+
+def calculate_probability(gene: int, crp: float, tg: float, u_rbc: float) -> tuple[float, float]:
+    """Return logit and predicted probability for CNI resistance."""
+    logit = -2.914 + 3.528 * gene + 0.151 * crp - 0.194 * tg + 0.001 * u_rbc
+    probability = 1 / (1 + math.exp(-logit))
+    return logit, probability
+
+
+st.set_page_config(
+    page_title=APP_TITLE,
+    page_icon=":hospital:",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
+
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #f6f9fc;
+    }
+    .block-container {
+        max-width: 760px;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    .title {
+        color: #0b5cab;
+        font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+        font-weight: 750;
+        margin-bottom: 0.25rem;
+        line-height: 1.35;
+        display: block;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+    .stNumberInput, .stSelectbox {
+        max-width: 100%;
     }
     .subtitle {
         color: #3d5f7f;
@@ -136,3 +186,5 @@ st.markdown(
     免责声明：本工具仅用于科研和临床辅助参考，不能替代医生的临床判断。正式应用前需进行外部验证。
     </div>
     """,
+    unsafe_allow_html=True,
+)
