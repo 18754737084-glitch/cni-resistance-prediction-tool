@@ -6,7 +6,7 @@ import streamlit as st
 
 APP_TITLE = "儿童SRNS患儿CNI耐药风险预测工具"
 APP_SUBTITLE = "基于Logistic回归模型的CNI耐药早期预测"
-APP_TITLE_HTML = "儿童SRNS患儿CNI耐药风险预测工具"
+APP_TITLE_HTML = "儿童SRNS患儿CNI耐药<br>风险预测工具"
 CUTOFF = 0.18
 
 
@@ -31,15 +31,15 @@ st.markdown(
         background-color: #f6f9fc;
     }
     .block-container {
-        max-width: 760px;
-        padding-top: 2rem;
+        max-width: 680px;
+        padding-top: 1.5rem;
         padding-bottom: 2rem;
     }
     .title {
         color: #0b5cab;
-        font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+        font-size: clamp(1.2rem, 2.3vw, 1.55rem);
         font-weight: 750;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.2rem;
         line-height: 1.35;
         display: block;
         max-width: 100%;
@@ -51,8 +51,14 @@ st.markdown(
     }
     .subtitle {
         color: #3d5f7f;
-        font-size: 1.08rem;
-        margin-bottom: 1.35rem;
+        font-size: 0.98rem;
+        margin-bottom: 1.2rem;
+    }
+    div[data-testid="stSelectbox"] {
+        margin-bottom: 0.6rem;
+    }
+    div[data-testid="stNumberInput"] {
+        margin-bottom: 0.6rem;
     }
     .section-card {
         background: #ffffff;
