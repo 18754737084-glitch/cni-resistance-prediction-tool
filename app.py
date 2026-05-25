@@ -35,10 +35,13 @@ st.markdown(
     }
     .title {
         color: #0b5cab;
-        font-size: 2.15rem;
+        font-size: clamp(1.45rem, 4vw, 2.05rem);
         font-weight: 750;
         margin-bottom: 0.25rem;
-        line-height: 1.25;
+        line-height: 1.35;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
     .subtitle {
         color: #3d5f7f;
@@ -95,98 +98,3 @@ st.markdown(
         padding-top: 1rem;
         line-height: 1.7;
     }
-    div[data-testid="stMetricValue"] {
-        color: #0b5cab;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(f'<div class="title">{APP_TITLE}</div>', unsafe_allow_html=True)
-st.markdown(f'<div class="subtitle">{APP_SUBTITLE}</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">预测变量输入</div>', unsafe_allow_html=True)
-
-col1, col2 = st.columns(2)
-with col1:
-    gene_label = st.selectbox(
-        "单基因变异",
-        options=["阴性 = 0", "阳性 = 1"],
-        help="请选择患儿是否存在单基因变异。",
-    )
-    crp = st.number_input(
-        "C反应蛋白 CRP（mg/L）",
-        min_value=0.0,
-        value=5.0,
-        step=0.1,
-        format="%.2f",
-    )
-
-with col2:
-    tg = st.number_input(
-        "甘油三酯 TG（mmol/L）",
-        min_value=0.0,
-        value=1.50,
-        step=0.01,
-        format="%.2f",
-    )
-    u_rbc = st.number_input(
-        "尿红细胞计数 U-RBC（个/μL）",
-        min_value=0.0,
-        value=20.0,
-        step=1.0,
-        format="%.2f",
-    )
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-gene = 1 if gene_label.startswith("阳性") else 0
-logit, probability = calculate_probability(gene, crp, tg, u_rbc)
-probability_percent = probability * 100
-is_high_risk = probability >= CUTOFF
-risk_text = "CNI耐药高风险" if is_high_risk else "CNI耐药低风险"
-risk_class = "result-high" if is_high_risk else "result-low"
-
-st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">预测结果</div>', unsafe_allow_html=True)
-st.markdown(
-    f"""
-    <div class="{risk_class}">
-        <div class="probability">{probability_percent:.2f}%</div>
-        <p class="risk-label">{risk_text}</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-metric_col1, metric_col2 = st.columns(2)
-with metric_col1:
-    st.metric("Logit(P)", f"{logit:.3f}")
-with metric_col2:
-    st.metric("风险截断值", f"{CUTOFF:.2f}")
-st.markdown("</div>", unsafe_allow_html=True)
-
-st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">模型说明</div>', unsafe_allow_html=True)
-st.markdown(
-    """
-    <div class="note">
-    本工具基于单基因变异、CRP、TG、U-RBC四个变量构建。<br>
-    Logistic回归公式：logit(P) = -2.914 + 3.528 × gene + 0.151 × CRP - 0.194 × TG + 0.001 × U-RBC。<br>
-    模型性能：AUC=0.85，灵敏度=0.72，特异度=0.91，最佳截断值=0.18。
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-st.markdown("</div>", unsafe_allow_html=True)
-
-st.markdown(
-    """
-    <div class="disclaimer">
-    免责声明：本工具仅用于科研和临床辅助参考，不能替代医生的临床判断。正式应用前需进行外部验证。
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
