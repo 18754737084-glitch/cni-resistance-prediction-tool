@@ -1,83 +1,192 @@
-import streamlit as st
 import math
 
+import streamlit as st
+
+
+APP_TITLE = "儿童SRNS患儿CNI耐药风险预测工具"
+APP_SUBTITLE = "基于Logistic回归模型的CNI耐药早期预测"
+CUTOFF = 0.18
+
+
+def calculate_probability(gene: int, crp: float, tg: float, u_rbc: float) -> tuple[float, float]:
+    """Return logit and predicted probability for CNI resistance."""
+    logit = -2.914 + 3.528 * gene + 0.151 * crp - 0.194 * tg + 0.001 * u_rbc
+    probability = 1 / (1 + math.exp(-logit))
+    return logit, probability
+
+
 st.set_page_config(
-    page_title="儿童SRNS患儿CNI耐药风险预测工具",
-    page_icon="🧬",
-    layout="centered"
+    page_title=APP_TITLE,
+    page_icon="🩺",
+    layout="centered",
+    initial_sidebar_state="collapsed",
 )
 
-st.title("儿童SRNS患儿CNI耐药风险预测工具")
-st.subheader("基于Logistic回归模型的CNI耐药早期预测")
-
-st.markdown("""
-本工具基于单基因变异、C反应蛋白、甘油三酯和尿红细胞计数构建，
-用于辅助评估儿童激素耐药型肾病综合征患儿发生CNI耐药的风险。
-""")
-
-st.divider()
-
-gene_option = st.selectbox(
-    "单基因变异结果",
-    options=["阴性", "阳性"]
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #f6f9fc;
+    }
+    .block-container {
+        max-width: 980px;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    .title {
+        color: #0b5cab;
+        font-size: 2.15rem;
+        font-weight: 750;
+        margin-bottom: 0.25rem;
+        line-height: 1.25;
+    }
+    .subtitle {
+        color: #3d5f7f;
+        font-size: 1.08rem;
+        margin-bottom: 1.35rem;
+    }
+    .section-card {
+        background: #ffffff;
+        border: 1px solid #d9e6f2;
+        border-radius: 8px;
+        padding: 1.2rem 1.35rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(11, 92, 171, 0.06);
+    }
+    .section-title {
+        color: #164f7f;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.65rem;
+    }
+    .result-high {
+        border-left: 6px solid #c62828;
+        background: #fff5f5;
+        padding: 1rem 1.1rem;
+        border-radius: 8px;
+    }
+    .result-low {
+        border-left: 6px solid #1b7f42;
+        background: #f3fbf6;
+        padding: 1rem 1.1rem;
+        border-radius: 8px;
+    }
+    .probability {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0b5cab;
+        margin-bottom: 0.2rem;
+    }
+    .risk-label {
+        font-size: 1.28rem;
+        font-weight: 750;
+        margin-bottom: 0;
+    }
+    .note {
+        color: #516579;
+        font-size: 0.95rem;
+        line-height: 1.75;
+    }
+    .disclaimer {
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #d9e6f2;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        line-height: 1.7;
+    }
+    div[data-testid="stMetricValue"] {
+        color: #0b5cab;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
-gene = 1 if gene_option == "阳性" else 0
+st.markdown(f'<div class="title">{APP_TITLE}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="subtitle">{APP_SUBTITLE}</div>', unsafe_allow_html=True)
 
-crp = st.number_input(
-    "C反应蛋白 CRP（mg/L）",
-    min_value=0.0,
-    value=8.0,
-    step=0.1
-)
+st.markdown('<div class="section-card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">预测变量输入</div>', unsafe_allow_html=True)
 
-tg = st.number_input(
-    "甘油三酯 TG（mmol/L）",
-    min_value=0.0,
-    value=3.0,
-    step=0.1
-)
-
-u_rbc = st.number_input(
-    "尿红细胞计数 U-RBC（个/μL）",
-    min_value=0.0,
-    value=100.0,
-    step=1.0
-)
-
-if st.button("开始预测"):
-    logit_p = -2.914 + 3.528 * gene + 0.151 * crp - 0.194 * tg + 0.001 * u_rbc
-    probability = 1 / (1 + math.exp(-logit_p))
-
-    st.divider()
-    st.subheader("预测结果")
-
-    st.metric(
-        label="CNI耐药预测概率",
-        value=f"{probability * 100:.2f}%"
+col1, col2 = st.columns(2)
+with col1:
+    gene_label = st.selectbox(
+        "单基因变异",
+        options=["阴性 = 0", "阳性 = 1"],
+        help="请选择患儿是否存在单基因变异。",
+    )
+    crp = st.number_input(
+        "C反应蛋白 CRP（mg/L）",
+        min_value=0.0,
+        value=5.0,
+        step=0.1,
+        format="%.2f",
     )
 
-    if probability >= 0.18:
-        st.error("风险判断：CNI耐药高风险")
-        st.markdown("建议结合患儿临床表现、基因检测、病理结果及治疗反应，进一步评估是否需要优化免疫抑制治疗方案。")
-    else:
-        st.success("风险判断：CNI耐药低风险")
-        st.markdown("提示患儿发生CNI耐药的预测风险较低，但仍需结合临床随访动态判断。")
+with col2:
+    tg = st.number_input(
+        "甘油三酯 TG（mmol/L）",
+        min_value=0.0,
+        value=1.50,
+        step=0.01,
+        format="%.2f",
+    )
+    u_rbc = st.number_input(
+        "尿红细胞计数 U-RBC（个/μL）",
+        min_value=0.0,
+        value=20.0,
+        step=1.0,
+        format="%.2f",
+    )
 
-st.divider()
+st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("""
-### 模型信息
+gene = 1 if gene_label.startswith("阳性") else 0
+logit, probability = calculate_probability(gene, crp, tg, u_rbc)
+probability_percent = probability * 100
+is_high_risk = probability >= CUTOFF
+risk_text = "CNI耐药高风险" if is_high_risk else "CNI耐药低风险"
+risk_class = "result-high" if is_high_risk else "result-low"
 
-- 模型类型：多因素 Logistic 回归预测模型
-- 纳入变量：单基因变异、CRP、TG、U-RBC
-- AUC：0.85
-- 灵敏度：0.72
-- 特异度：0.91
-- 最佳截断值：0.18
+st.markdown('<div class="section-card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">预测结果</div>', unsafe_allow_html=True)
+st.markdown(
+    f"""
+    <div class="{risk_class}">
+        <div class="probability">{probability_percent:.2f}%</div>
+        <p class="risk-label">{risk_text}</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-### 免责声明
+metric_col1, metric_col2 = st.columns(2)
+with metric_col1:
+    st.metric("Logit(P)", f"{logit:.3f}")
+with metric_col2:
+    st.metric("风险截断值", f"{CUTOFF:.2f}")
+st.markdown("</div>", unsafe_allow_html=True)
 
-本工具仅用于科研和临床辅助参考，不能替代医生的临床判断。
-正式临床应用前，仍需进行多中心外部验证和前瞻性验证。
-""")
+st.markdown('<div class="section-card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">模型说明</div>', unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="note">
+    本工具基于单基因变异、CRP、TG、U-RBC四个变量构建。<br>
+    Logistic回归公式：logit(P) = -2.914 + 3.528 × gene + 0.151 × CRP - 0.194 × TG + 0.001 × U-RBC。<br>
+    模型性能：AUC=0.85，灵敏度=0.72，特异度=0.91，最佳截断值=0.18。
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown(
+    """
+    <div class="disclaimer">
+    免责声明：本工具仅用于科研和临床辅助参考，不能替代医生的临床判断。正式应用前需进行外部验证。
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
