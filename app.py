@@ -6,6 +6,7 @@ import streamlit as st
 
 APP_TITLE = "儿童SRNS患儿CNI耐药风险预测工具"
 APP_SUBTITLE = "基于Logistic回归模型的CNI耐药早期预测"
+APP_TITLE_HTML = "儿童SRNS患儿CNI耐药<br>风险预测工具"
 CUTOFF = 0.18
 
 
@@ -36,13 +37,14 @@ st.markdown(
     }
     .title {
         color: #0b5cab;
-        font-size: clamp(1.45rem, 4vw, 2.05rem);
+        font-size: clamp(1.35rem, 3.2vw, 1.9rem);
         font-weight: 750;
         margin-bottom: 0.25rem;
         line-height: 1.35;
+        display: block;
+        max-width: 100%;
         white-space: normal;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        overflow-wrap: break-word;
     }
     .subtitle {
         color: #3d5f7f;
@@ -107,7 +109,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown(f'<div class="title">{APP_TITLE}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="title">{APP_TITLE_HTML}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="subtitle">{APP_SUBTITLE}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="section-title">预测变量输入</div>', unsafe_allow_html=True)
@@ -174,15 +176,6 @@ st.markdown(
     本工具基于单基因变异、CRP、TG、U-RBC四个变量构建。<br>
     Logistic回归公式：logit(P) = -2.914 + 3.528 × gene + 0.151 × CRP - 0.194 × TG + 0.001 × U-RBC。<br>
     模型性能：AUC=0.85，灵敏度=0.72，特异度=0.91，最佳截断值=0.18。
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    """
-    <div class="disclaimer">
-    免责声明：本工具仅用于科研和临床辅助参考，不能替代医生的临床判断。正式应用前需进行外部验证。
     </div>
     """,
     unsafe_allow_html=True,
