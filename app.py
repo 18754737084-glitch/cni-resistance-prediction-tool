@@ -1,50 +1,3 @@
-# -*- coding: utf-8 -*-
-import math
-
-import streamlit as st
-
-
-APP_TITLE = "儿童SRNS患儿CNI耐药风险预测工具"
-APP_SUBTITLE = "基于Logistic回归模型的CNI耐药早期预测"
-APP_TITLE_HTML = "儿童SRNS患儿CNI耐药<br>风险预测工具"
-CUTOFF = 0.18
-
-
-def calculate_probability(gene: int, crp: float, tg: float, u_rbc: float) -> tuple[float, float]:
-    """Return logit and predicted probability for CNI resistance."""
-    logit = -2.914 + 3.528 * gene + 0.151 * crp - 0.194 * tg + 0.001 * u_rbc
-    probability = 1 / (1 + math.exp(-logit))
-    return logit, probability
-
-
-st.set_page_config(
-    page_title=APP_TITLE,
-    page_icon=":hospital:",
-    layout="centered",
-    initial_sidebar_state="collapsed",
-)
-
-st.markdown(
-    """
-    <style>
-    .main {
-        background-color: #f6f9fc;
-    }
-    .block-container {
-        max-width: 980px;
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-    .title {
-        color: #0b5cab;
-        font-size: clamp(1.35rem, 3.2vw, 1.9rem);
-        font-weight: 750;
-        margin-bottom: 0.25rem;
-        line-height: 1.35;
-        display: block;
-        max-width: 100%;
-        white-space: normal;
-        overflow-wrap: break-word;
     }
     .subtitle {
         color: #3d5f7f;
@@ -114,36 +67,32 @@ st.markdown(f'<div class="subtitle">{APP_SUBTITLE}</div>', unsafe_allow_html=Tru
 
 st.markdown('<div class="section-title">预测变量输入</div>', unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
-with col1:
-    gene_label = st.selectbox(
-        "单基因变异",
-        options=["阴性 = 0", "阳性 = 1"],
-        help="请选择患儿是否存在单基因变异。",
-    )
-    crp = st.number_input(
-        "C反应蛋白 CRP（mg/L）",
-        min_value=0.0,
-        value=5.0,
-        step=0.1,
-        format="%.2f",
-    )
-
-with col2:
-    tg = st.number_input(
-        "甘油三酯 TG（mmol/L）",
-        min_value=0.0,
-        value=1.50,
-        step=0.01,
-        format="%.2f",
-    )
-    u_rbc = st.number_input(
-        "尿红细胞计数 U-RBC（个/μL）",
-        min_value=0.0,
-        value=20.0,
-        step=1.0,
-        format="%.2f",
-    )
+gene_label = st.selectbox(
+    "单基因变异",
+    options=["阴性 = 0", "阳性 = 1"],
+    help="请选择患儿是否存在单基因变异。",
+)
+crp = st.number_input(
+    "C反应蛋白 CRP（mg/L）",
+    min_value=0.0,
+    value=5.0,
+    step=0.1,
+    format="%.2f",
+)
+tg = st.number_input(
+    "甘油三酯 TG（mmol/L）",
+    min_value=0.0,
+    value=1.50,
+    step=0.01,
+    format="%.2f",
+)
+u_rbc = st.number_input(
+    "尿红细胞计数 U-RBC（个/μL）",
+    min_value=0.0,
+    value=20.0,
+    step=1.0,
+    format="%.2f",
+)
 
 gene = 1 if gene_label.startswith("阳性") else 0
 logit, probability = calculate_probability(gene, crp, tg, u_rbc)
@@ -180,3 +129,10 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+st.markdown(
+    """
+    <div class="disclaimer">
+    免责声明：本工具仅用于科研和临床辅助参考，不能替代医生的临床判断。正式应用前需进行外部验证。
+    </div>
+    """,
