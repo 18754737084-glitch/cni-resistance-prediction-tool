@@ -43,7 +43,7 @@ def calculate_probability(gene: int, crp: float, tg: float, u_rbc: float) -> tup
 st.set_page_config(
     page_title=APP_TITLE,
     page_icon=":hospital:",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed",
 )
 
@@ -53,85 +53,111 @@ st.markdown(
     .main {
         background-color: #f6f9fc;
     }
+    header, footer, #MainMenu {
+        visibility: hidden;
+        height: 0;
+    }
     .block-container {
-        max-width: 620px;
-        padding-top: 4rem;
-        padding-bottom: 2rem;
+        max-width: 1080px;
+        padding-top: 1rem;
+        padding-bottom: 0.5rem;
     }
     h3 {
         color: #0b5cab;
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 750;
-        line-height: 1.6;
+        line-height: 1.35;
         margin-top: 0;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         max-width: 100%;
         white-space: normal;
         overflow-wrap: break-word;
     }
     .subtitle {
         color: #3d5f7f;
-        font-size: 16px;
-        margin-bottom: 28px;
-        line-height: 1.5;
+        font-size: 14px;
+        margin-bottom: 12px;
+        line-height: 1.35;
     }
     .section-title {
         color: #164f7f;
-        font-size: 20px;
+        font-size: 16px;
         font-weight: 700;
-        margin-top: 22px;
-        margin-bottom: 12px;
+        margin-top: 10px;
+        margin-bottom: 6px;
     }
     .result-high {
         border-left: 6px solid #c62828;
         background: #fff5f5;
-        padding: 18px 22px;
+        padding: 14px 18px;
         border-radius: 8px;
     }
     .result-low {
         border-left: 6px solid #1b7f42;
         background: #f3fbf6;
-        padding: 18px 22px;
+        padding: 14px 18px;
         border-radius: 8px;
     }
     .probability {
-        font-size: 34px;
+        font-size: 30px;
         font-weight: 800;
         color: #0b5cab;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
     .risk-label {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 750;
         margin-bottom: 0;
+    }
+    .metric-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 10px;
+    }
+    .metric-box {
+        background: #ffffff;
+        border: 1px solid #d9e6f2;
+        border-radius: 8px;
+        padding: 10px 14px;
+    }
+    .metric-label {
+        color: #516579;
+        font-size: 13px;
+        margin-bottom: 2px;
+    }
+    .metric-value {
+        color: #0b5cab;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.2;
     }
     .section-card {
         background: #ffffff;
         border: 1px solid #d9e6f2;
         border-radius: 8px;
-        padding: 18px 22px;
-        margin-bottom: 18px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
         box-shadow: 0 2px 10px rgba(11, 92, 171, 0.06);
     }
     .note {
         color: #516579;
-        font-size: 15px;
-        line-height: 1.8;
+        font-size: 13px;
+        line-height: 1.65;
     }
     .disclaimer {
         color: #6c757d;
-        font-size: 14px;
+        font-size: 12px;
         border-top: 1px solid #d9e6f2;
-        margin-top: 24px;
-        padding-top: 16px;
-        line-height: 1.7;
+        margin-top: 8px;
+        padding-top: 8px;
+        line-height: 1.45;
     }
     div[data-testid="stSelectbox"], div[data-testid="stNumberInput"] {
-        margin-bottom: 12px;
+        margin-bottom: 0;
     }
-    div[data-testid="stMetricValue"] {
-        color: #0b5cab;
-        font-size: 34px;
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.35rem;
     }
     </style>
     """,
@@ -143,32 +169,35 @@ st.markdown(f'<div class="subtitle">{APP_SUBTITLE}</div>', unsafe_allow_html=Tru
 
 st.markdown(f'<div class="section-title">{LABEL_INPUT}</div>', unsafe_allow_html=True)
 
-gene_label = st.selectbox(
-    LABEL_GENE,
-    options=[GENE_NEGATIVE, GENE_POSITIVE],
-    help=HELP_GENE,
-)
-crp = st.number_input(
-    LABEL_CRP,
-    min_value=0.0,
-    value=5.0,
-    step=0.1,
-    format="%.2f",
-)
-tg = st.number_input(
-    LABEL_TG,
-    min_value=0.0,
-    value=1.50,
-    step=0.01,
-    format="%.2f",
-)
-u_rbc = st.number_input(
-    LABEL_URBC,
-    min_value=0.0,
-    value=20.0,
-    step=1.0,
-    format="%.2f",
-)
+input_col1, input_col2 = st.columns(2)
+with input_col1:
+    gene_label = st.selectbox(
+        LABEL_GENE,
+        options=[GENE_NEGATIVE, GENE_POSITIVE],
+        help=HELP_GENE,
+    )
+    crp = st.number_input(
+        LABEL_CRP,
+        min_value=0.0,
+        value=5.0,
+        step=0.1,
+        format="%.2f",
+    )
+with input_col2:
+    tg = st.number_input(
+        LABEL_TG,
+        min_value=0.0,
+        value=1.50,
+        step=0.01,
+        format="%.2f",
+    )
+    u_rbc = st.number_input(
+        LABEL_URBC,
+        min_value=0.0,
+        value=20.0,
+        step=1.0,
+        format="%.2f",
+    )
 
 gene = 1 if gene_label == GENE_POSITIVE else 0
 logit, probability = calculate_probability(gene, crp, tg, u_rbc)
@@ -177,32 +206,38 @@ is_high_risk = probability >= CUTOFF
 risk_text = HIGH_RISK if is_high_risk else LOW_RISK
 risk_class = "result-high" if is_high_risk else "result-low"
 
-st.markdown(f'<div class="section-title">{LABEL_RESULT}</div>', unsafe_allow_html=True)
-st.markdown(
-    f"""
-    <div class="{risk_class}">
-        <div class="probability">{probability_percent:.2f}%</div>
-        <p class="risk-label">{risk_text}</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-metric_col1, metric_col2 = st.columns(2)
-with metric_col1:
-    st.metric("Logit(P)", f"{logit:.3f}")
-with metric_col2:
-    st.metric(LABEL_CUTOFF, f"{CUTOFF:.2f}")
-
-st.markdown(f'<div class="section-title">{LABEL_MODEL}</div>', unsafe_allow_html=True)
-st.markdown(
-    f"""
-    <div class="section-card note">
-    {MODEL_DESCRIPTION}
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+result_col, model_col = st.columns([0.9, 1.1])
+with result_col:
+    st.markdown(f'<div class="section-title">{LABEL_RESULT}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="{risk_class}">
+            <div class="probability">{probability_percent:.2f}%</div>
+            <p class="risk-label">{risk_text}</p>
+        </div>
+        <div class="metric-row">
+            <div class="metric-box">
+                <div class="metric-label">Logit(P)</div>
+                <div class="metric-value">{logit:.3f}</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">{LABEL_CUTOFF}</div>
+                <div class="metric-value">{CUTOFF:.2f}</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with model_col:
+    st.markdown(f'<div class="section-title">{LABEL_MODEL}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="section-card note">
+        {MODEL_DESCRIPTION}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 st.markdown(
     f"""
